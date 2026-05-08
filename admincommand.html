@@ -749,7 +749,7 @@
 
     function login() {
         const key = document.getElementById('adminKeyInput').value;
-        fetch(`http://127.0.0.1:8000/admin/clients?admin_key=${key}`)
+        fetch(`https://verify-shield-production.up.railway.app/admin/clients?admin_key=${key}`)
             .then(r => r.json())
             .then(data => {
                 if (data.clients !== undefined) {
@@ -765,7 +765,7 @@
     }
 
     function loadClients() {
-        fetch(`http://127.0.0.1:8000/admin/clients?admin_key=${ADMIN_KEY}`)
+        fetch(`https://verify-shield-production.up.railway.app/admin/clients?admin_key=${ADMIN_KEY}`)
             .then(r => r.json())
             .then(data => renderClients(data.clients));
     }
@@ -813,7 +813,7 @@
 
         if (!name || !email) { alert('Please fill in name and email!'); return; }
 
-        fetch(`http://127.0.0.1:8000/admin/create-client?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&plan=${plan}&admin_key=${ADMIN_KEY}`)
+        fetch(`https://verify-shield-production.up.railway.app/admin/create-client?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&plan=${plan}&admin_key=${ADMIN_KEY}`)
             .then(r => r.json())
             .then(data => {
                 const msg = document.getElementById('successMsg');
@@ -830,7 +830,7 @@
         const modal = document.getElementById('usageModal');
         modal.classList.add('open');
         // Fetch fresh client data and build analytics
-        fetch(`http://127.0.0.1:8000/admin/clients?admin_key=${ADMIN_KEY}`)
+        fetch(`https://verify-shield-production.up.railway.app/admin/clients?admin_key=${ADMIN_KEY}`)
             .then(r => r.json())
             .then(data => renderUsageModal(data.clients))
             .catch(() => alert('Could not load usage data!'));
@@ -947,7 +947,7 @@
         const btn = document.getElementById('chk-email-btn');
         btn.textContent = '⏳ Analyzing...'; btn.disabled = true;
         try {
-            const r = await fetch(`http://127.0.0.1:8000/check?email=${encodeURIComponent(e)}&api_key=demo`);
+            const r = await fetch(`https://verify-shield-production.up.railway.app/check?email=${encodeURIComponent(e)}&api_key=demo`);
             const d = await r.json();
             document.getElementById('res-email').style.display = 'block';
             const cls = setPill(document.getElementById('re-status'), d.status);
@@ -965,7 +965,7 @@
         const btn = document.getElementById('chk-phone-btn');
         btn.textContent = '⏳ Analyzing...'; btn.disabled = true;
         try {
-            const r = await fetch(`http://127.0.0.1:8000/check-phone?phone=${encodeURIComponent(p)}&api_key=demo`);
+            const r = await fetch(`https://verify-shield-production.up.railway.app/check-phone?phone=${encodeURIComponent(p)}&api_key=demo`);
             const d = await r.json();
             document.getElementById('res-phone').style.display = 'block';
             setPill(document.getElementById('rp-status'), d.status);
@@ -988,7 +988,7 @@
         const btn = document.getElementById('chk-ip-btn');
         btn.textContent = '⏳ Analyzing...'; btn.disabled = true;
         try {
-            const r = await fetch(`http://127.0.0.1:8000/check-ip?ip=${encodeURIComponent(ip)}&api_key=demo`);
+            const r = await fetch(`https://verify-shield-production.up.railway.app/check-ip?ip=${encodeURIComponent(ip)}&api_key=demo`);
             const d = await r.json();
             document.getElementById('res-ip').style.display = 'block';
             const cls = setPill(document.getElementById('ri-status'), d.status);
