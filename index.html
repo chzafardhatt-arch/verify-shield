@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VerifyShield AI — Fraud Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03050D;
+  --bg2:#060A16;
+  --bg3:#0A1020;
+  --surface:#0D1628;
+  --surface2:#111d33;
+  --gold:#F5A51C;
+  --gold-dim:#F5A51C22;
+  --gold-soft:#F5A51C44;
+  --green:#05E59A;
+  --green-dim:#05E59A18;
+  --red:#FF2D55;
+  --red-dim:#FF2D5518;
+  --amber:#FFB800;
+  --blue:#4B8FFF;
+  --muted:#3A4D6A;
+  --muted2:#5A708A;
+  --text:#B8CCEC;
+  --white:#FFFFFF;
+  --border:rgba(255,255,255,0.05);
+  --border2:rgba(255,255,255,0.09);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cabinet Grotesk',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.bg-canvas{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 70% -10%, rgba(245,165,28,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at -10% 60%, rgba(5,229,154,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 110%, rgba(75,143,255,0.06) 0%, transparent 60%);
+}
+.grid{
+  position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(245,165,28,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(245,165,28,0.03) 1px,transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse 100% 70% at 50% 0%,black 20%,transparent 100%);
+}
+.scanlines{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px);
+}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:68px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;
+  background:rgba(3,5,13,0.75);
+  backdrop-filter:blur(28px);
+  border-bottom:1px solid var(--border);
+}
+.logo{
+  display:flex;align-items:center;gap:12px;
+  font-family:'Clash Display',sans-serif;
+  font-size:1.55rem;font-weight:700;
+  color:var(--white);letter-spacing:1px;
+  text-decoration:none;
+}
+.logo-mark{
+  width:42px;height:42px;
+  border-radius:10px;
+  overflow:hidden;
+  flex-shrink:0;
+  filter:drop-shadow(0 0 14px rgba(75,143,255,0.6)) drop-shadow(0 0 40px rgba(75,143,255,0.2));
+}
+.logo-mark img{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+}
+.logo-text{
+  display:flex;flex-direction:column;line-height:1;
+}
+.logo-text .verify{
+  font-size:1.35rem;font-weight:800;letter-spacing:2px;
+  background:linear-gradient(90deg,#fff 0%,#a8c8ff 60%,#4B8FFF 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-transform:uppercase;
+  filter:drop-shadow(0 0 8px rgba(75,143,255,0.5));
+}
+.logo-text .shield{
+  font-size:0.72rem;font-weight:600;letter-spacing:5px;
+  text-transform:uppercase;
+  background:linear-gradient(90deg,#4B8FFF,#05E59A);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-top:2px;
+  opacity:0.9;
+}
+.nav-center{display:flex;gap:4px;}
+.nav-link{
+  padding:8px 16px;background:transparent;border:none;
+  color:var(--muted2);font-family:'Cabinet Grotesk',sans-serif;
+  font-size:14px;font-weight:500;cursor:pointer;border-radius:8px;transition:all 0.2s;
+}
+.nav-link:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.badge-live{
+  display:flex;align-items:center;gap:7px;
+  background:var(--green-dim);border:1px solid rgba(5,229,154,0.2);
+  padding:7px 15px;border-radius:100px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--green);letter-spacing:0.5px;
+}
+.pulse{
+  width:6px;height:6px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 8px var(--green);
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.85)}}
+.btn-nav{
+  padding:9px 22px;background:var(--gold);border:none;border-radius:9px;
+  font-family:'Cabinet Grotesk',sans-serif;font-size:14px;font-weight:700;
+  color:#03050D;cursor:pointer;transition:all 0.25s;
+  box-shadow:0 0 20px rgba(245,165,28,0.25);
+}
+.btn-nav:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(245,165,28,0.4);}
+.hero{
+  position:relative;z-index:1;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:100px 24px 80px;text-align:center;
+}
+.hero-pretag{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(245,165,28,0.06);border:1px solid rgba(245,165,28,0.18);
+  padding:9px 22px;border-radius:100px;
+  font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:44px;animation:up 0.7s ease both;
+}
+.hero-pretag-dot{
+  width:5px;height:5px;background:var(--gold);border-radius:50%;
+  box-shadow:0 0 6px var(--gold);animation:blink 2s ease-in-out infinite;
+}
+@keyframes up{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.hero-title{
+  font-family:'Clash Display',sans-serif;
+  font-size:clamp(4.5rem,12vw,9.5rem);font-weight:700;
+  line-height:0.9;letter-spacing:-2px;margin-bottom:10px;
+  animation:up 0.7s 0.1s ease both;
+}
+.hero-title .line1{display:block;color:var(--white);text-shadow:0 0 80px rgba(255,255,255,0.08);}
+.hero-title .line2{
+  display:block;color:transparent;
+  -webkit-text-stroke:1.5px var(--gold);
+  filter:drop-shadow(0 0 30px rgba(245,165,28,0.4));
+}
+.hero-title .line3{display:block;color:var(--white);text-shadow:0 0 80px rgba(255,255,255,0.08);}
+.hero-sub{
+  max-width:560px;margin:32px auto 0;
+  font-size:1.1rem;line-height:1.8;color:var(--muted2);font-weight:400;
+  animation:up 0.7s 0.2s ease both;
+}
+.hero-sub strong{color:var(--text);font-weight:500;}
+.stat-bar{
+  display:flex;align-items:stretch;margin:52px 0 60px;
+  background:rgba(13,22,40,0.8);border:1px solid var(--border2);
+  border-radius:18px;overflow:hidden;
+  animation:up 0.7s 0.3s ease both;backdrop-filter:blur(20px);
+}
+.stat-item{padding:24px 44px;text-align:center;flex:1;position:relative;}
+.stat-item+.stat-item::before{
+  content:'';position:absolute;left:0;top:25%;bottom:25%;
+  width:1px;background:var(--border);
+}
+.stat-num{
+  font-family:'Clash Display',sans-serif;font-size:2.3rem;font-weight:700;
+  color:var(--white);letter-spacing:1px;line-height:1;
+  display:flex;align-items:baseline;justify-content:center;gap:3px;
+}
+.stat-num sup{font-size:1.4rem;color:var(--gold);}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:8px;font-weight:600;}
+.checker-outer{width:100%;max-width:620px;animation:up 0.7s 0.4s ease both;}
+.tab-strip{
+  display:flex;background:rgba(6,10,22,0.95);
+  border:1px solid var(--border2);border-bottom:none;
+  border-radius:20px 20px 0 0;padding:8px;gap:6px;
+}
+.tab-btn{
+  flex:1;padding:11px 8px;background:transparent;border:none;border-radius:12px;
+  color:var(--muted);font-family:'Cabinet Grotesk',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all 0.25s;
+  display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:0.3px;
+}
+.tab-btn:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.tab-btn.active{background:rgba(245,165,28,0.1);color:var(--gold);box-shadow:inset 0 0 0 1px rgba(245,165,28,0.25);}
+.tab-icon{font-size:15px;}
+.checker-card{
+  background:rgba(6,10,22,0.95);border:1px solid var(--border2);border-top:none;
+  border-radius:0 0 24px 24px;padding:36px 38px 38px;
+  backdrop-filter:blur(30px);position:relative;overflow:hidden;
+}
+.checker-card::after{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(245,165,28,0.5),transparent);
+}
+.panel{display:none;}.panel.active{display:block;}
+.card-heading{
+  font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:600;
+  color:var(--white);letter-spacing:0.5px;margin-bottom:6px;
+}
+.card-sub{color:var(--muted2);font-size:14px;margin-bottom:28px;line-height:1.5;}
+.field-lbl{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.input-wrap{position:relative;margin-bottom:18px;}
+.input-pre{
+  position:absolute;top:0;bottom:0;left:0;width:52px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;pointer-events:none;z-index:1;border-right:1px solid var(--border);
+}
+input[type=email],input[type=tel],input[type=text],input[type=password]{
+  width:100%;padding:16px 18px 16px 62px;
+  background:rgba(3,5,13,0.8);border:1px solid var(--border2);border-radius:14px;
+  color:var(--white);font-family:'JetBrains Mono',monospace;font-size:14px;
+  outline:none;transition:all 0.3s;
+}
+input:focus{
+  border-color:rgba(245,165,28,0.45);background:rgba(3,5,13,1);
+  box-shadow:0 0 0 4px rgba(245,165,28,0.07),0 0 30px rgba(245,165,28,0.06);
+}
+input::placeholder{color:#1A2840;}
+.cta-btn{
+  width:100%;padding:17px;
+  background:linear-gradient(135deg,#F5A51C,#E0891A);border:none;border-radius:14px;
+  font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;letter-spacing:2px;
+  color:#03050D;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s;
+  box-shadow:0 8px 32px rgba(245,165,28,0.3),0 0 0 1px rgba(245,165,28,0.2);
+}
+.cta-btn::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transition:left 0.55s;
+}
+.cta-btn:hover::before{left:100%;}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 16px 48px rgba(245,165,28,0.45);}
+.cta-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+.result{
+  display:none;margin-top:22px;padding:24px;border-radius:18px;
+  background:rgba(3,5,13,0.9);border:1px solid var(--border);
+  animation:popIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.res-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.status-pill{display:flex;align-items:center;gap:7px;padding:8px 20px;border-radius:100px;font-size:13px;font-weight:700;}
+.pill-safe{background:rgba(5,229,154,0.1);color:var(--green);border:1px solid rgba(5,229,154,0.2);}
+.pill-flag{background:rgba(255,45,85,0.1);color:var(--red);border:1px solid rgba(255,45,85,0.2);}
+.pill-rev{background:rgba(255,184,0,0.1);color:var(--amber);border:1px solid rgba(255,184,0,0.2);}
+.score-big{font-family:'Clash Display',sans-serif;font-size:2.1rem;font-weight:700;color:var(--white);line-height:1;letter-spacing:1px;}
+.score-big small{font-size:13px;color:var(--muted);font-family:'Cabinet Grotesk',sans-serif;font-weight:400;}
+.bar-bg{height:5px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.bar-fill{height:100%;width:0%;border-radius:10px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px;}
+.det-box{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:12px 14px;}
+.det-key{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:5px;}
+.det-val{font-size:13px;color:var(--white);font-weight:500;font-family:'JetBrains Mono',monospace;}
+.check-pills{display:flex;flex-wrap:wrap;gap:7px;}
+.check-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(5,229,154,0.06);border:1px solid rgba(5,229,154,0.12);
+  color:rgba(5,229,154,0.65);padding:5px 13px;border-radius:100px;
+  font-size:11px;font-weight:600;letter-spacing:0.5px;
+}
+.marquee-wrap{
+  position:relative;z-index:1;padding:32px 0;overflow:hidden;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.marquee-track{display:flex;white-space:nowrap;animation:marquee 28s linear infinite;}
+.marquee-track:hover{animation-play-state:paused;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%)}}
+.marquee-item{
+  display:inline-flex;align-items:center;gap:10px;padding:0 40px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;
+  color:var(--muted);border-right:1px solid var(--border);
+}
+.marquee-item span{color:var(--gold);font-weight:600;}
+.terminal-section{position:relative;z-index:1;padding:80px 24px;}
+.section-eyebrow{
+  text-align:center;font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;
+}
+.section-title{
+  text-align:center;font-family:'Clash Display',sans-serif;
+  font-size:clamp(2rem,5vw,3.8rem);font-weight:700;letter-spacing:-0.5px;
+  color:var(--white);margin-bottom:10px;line-height:1.05;
+}
+.section-sub{text-align:center;color:var(--muted2);font-size:15px;margin-bottom:60px;line-height:1.7;}
+.terminal{
+  max-width:900px;margin:0 auto;background:#010306;border-radius:20px;overflow:hidden;
+  border:1px solid rgba(5,229,154,0.1);
+  box-shadow:0 0 80px rgba(5,229,154,0.04),0 40px 80px rgba(0,0,0,0.7);
+}
+.term-bar{
+  background:rgba(255,255,255,0.025);border-bottom:1px solid rgba(255,255,255,0.05);
+  padding:14px 20px;display:flex;align-items:center;gap:8px;
+}
+.tc{width:13px;height:13px;border-radius:50%;}
+.tc.r{background:#FF5F57;}.tc.y{background:#FEBC2E;}.tc.g{background:#28C840;}
+.term-title-txt{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-left:10px;}
+.term-body{padding:28px 32px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2.4;}
+.tline{display:flex;gap:14px;align-items:baseline;}
+.tp{color:rgba(245,165,28,0.5);}
+.t-dim{color:#1A2D1A;}
+.t-green{color:rgba(5,229,154,0.85);}
+.t-blue{color:rgba(75,143,255,0.8);}
+.t-warn{color:var(--red);font-weight:600;}
+.t-muted{color:var(--muted);}
+.t-gold{color:var(--gold);}
+.typed-cursor{display:inline-block;width:8px;height:14px;background:rgba(5,229,154,0.7);animation:cursor 1s ease-in-out infinite;}
+@keyframes cursor{0%,100%{opacity:1}50%{opacity:0}}
+.features-section{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:80px 24px 120px;}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.feat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:22px;
+  padding:32px 28px;position:relative;overflow:hidden;
+  transition:all 0.4s cubic-bezier(0.4,0,0.2,1);cursor:default;
+}
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 50% -20%,rgba(245,165,28,0.07),transparent);
+  opacity:0;transition:opacity 0.4s;
+}
+.feat-card:hover{transform:translateY(-10px) scale(1.01);border-color:rgba(245,165,28,0.22);box-shadow:0 40px 80px rgba(0,0,0,0.5),0 0 40px rgba(245,165,28,0.07);}
+.feat-card:hover::before{opacity:1;}
+.feat-ghost-num{
+  position:absolute;right:20px;top:14px;font-family:'Clash Display',sans-serif;
+  font-size:5rem;font-weight:700;color:rgba(245,165,28,0.05);line-height:1;
+  pointer-events:none;transition:color 0.4s;
+}
+.feat-card:hover .feat-ghost-num{color:rgba(245,165,28,0.1);}
+.feat-icon-wrap{
+  width:50px;height:50px;background:rgba(245,165,28,0.08);border:1px solid rgba(245,165,28,0.15);
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:20px;transition:all 0.35s;
+}
+.feat-card:hover .feat-icon-wrap{background:rgba(245,165,28,0.14);box-shadow:0 0 20px rgba(245,165,28,0.15);}
+.feat-title{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:600;letter-spacing:0.5px;color:var(--white);margin-bottom:10px;}
+.feat-desc{color:var(--muted2);font-size:14px;line-height:1.75;}
+.hiw-section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 100px;}
+.steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;}
+.steps-row::before{
+  content:'';position:absolute;top:38px;left:calc(12.5% + 25px);right:calc(12.5% + 25px);
+  height:1px;background:linear-gradient(90deg,rgba(245,165,28,0.2),rgba(245,165,28,0.4),rgba(245,165,28,0.2));z-index:0;
+}
+.step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 20px;position:relative;z-index:1;}
+.step-circle{
+  width:52px;height:52px;background:var(--surface);border:1px solid rgba(245,165,28,0.25);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;
+  font-size:1.3rem;font-weight:700;color:var(--gold);margin-bottom:20px;
+  box-shadow:0 0 20px rgba(245,165,28,0.1);
+}
+.step-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;color:var(--white);margin-bottom:8px;letter-spacing:0.5px;}
+.step-desc{font-size:13px;color:var(--muted2);line-height:1.7;}
+.cta-section{position:relative;z-index:1;padding:0 24px 120px;}
+.cta-inner{
+  max-width:860px;margin:0 auto;
+  background:linear-gradient(135deg,rgba(245,165,28,0.08) 0%,rgba(5,229,154,0.05) 100%);
+  border:1px solid rgba(245,165,28,0.15);border-radius:28px;
+  padding:70px 60px;text-align:center;position:relative;overflow:hidden;
+}
+.cta-inner::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(245,165,28,0.5),rgba(5,229,154,0.3),transparent);
+}
+.cta-title{font-family:'Clash Display',sans-serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:700;color:var(--white);letter-spacing:-0.5px;margin-bottom:16px;line-height:1.1;}
+.cta-sub{color:var(--muted2);font-size:16px;line-height:1.7;margin-bottom:40px;}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{
+  padding:15px 36px;background:var(--gold);border:none;border-radius:12px;
+  font-family:'Cabinet Grotesk',sans-serif;font-size:15px;font-weight:700;
+  color:#03050D;cursor:pointer;transition:all 0.3s;box-shadow:0 8px 30px rgba(245,165,28,0.35);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(245,165,28,0.5);}
+.btn-outline{
+  padding:15px 36px;background:transparent;border:1px solid var(--border2);border-radius:12px;
+  font-family:'Cabinet Grotesk',sans-serif;font-size:15px;font-weight:600;
+  color:var(--text);cursor:pointer;transition:all 0.3s;
+}
+.btn-outline:hover{background:rgba(255,255,255,0.04);}
+/* ===== FOOTER ===== */
+footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+  padding:0;
+}
+.footer-main{
+  max-width:1120px;margin:0 auto;
+  padding:70px 48px 50px;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1.4fr;
+  gap:48px;
+}
+.footer-brand .footer-logo{
+  font-family:'Clash Display',sans-serif;font-size:1.35rem;font-weight:700;
+  color:var(--white);letter-spacing:1px;
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.footer-brand .footer-logo span{color:var(--gold);}
+.footer-logo-mark{
+  width:28px;height:28px;
+  background:linear-gradient(135deg,var(--gold),#E8921A);
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;box-shadow:0 0 14px rgba(245,165,28,0.35);flex-shrink:0;
+}
+.footer-brand p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:260px;margin-bottom:20px;}
+.footer-contact-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(245,165,28,0.07);border:1px solid rgba(245,165,28,0.18);
+  border-radius:100px;padding:8px 16px;
+  font-size:12px;color:var(--gold);font-weight:600;
+  text-decoration:none;transition:all 0.2s;word-break:break-all;
+}
+.footer-contact-chip:hover{background:rgba(245,165,28,0.13);box-shadow:0 0 20px rgba(245,165,28,0.1);}
+.footer-col-title{
+  font-family:'Clash Display',sans-serif;font-size:13px;font-weight:700;
+  color:var(--white);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;
+}
+.footer-links{display:flex;flex-direction:column;gap:10px;}
+.footer-links a,.footer-links button{
+  font-size:13.5px;color:var(--muted2);text-decoration:none;background:none;border:none;
+  cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;text-align:left;
+  transition:color 0.2s;padding:0;
+}
+.footer-links a:hover,.footer-links button:hover{color:var(--gold);}
+.pay-logos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.pay-logo-box{
+  background:rgba(255,255,255,0.03);border:1px solid var(--border2);
+  border-radius:10px;padding:10px 12px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:border-color 0.2s,background 0.2s;
+}
+.pay-logo-box:hover{border-color:rgba(245,165,28,0.2);background:rgba(245,165,28,0.04);}
+.pay-logo-box span{font-size:11px;font-weight:700;color:var(--muted2);}
+.bank-note{
+  font-size:11px;color:var(--muted);line-height:1.6;
+  background:rgba(5,229,154,0.04);border:1px solid rgba(5,229,154,0.1);
+  border-radius:9px;padding:10px 12px;
+}
+.bank-note b{color:rgba(5,229,154,0.7);}
+.footer-bottom{
+  border-top:1px solid var(--border);
+  padding:20px 48px;
+  max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;
+}
+.footer-copy{font-size:12px;color:var(--muted);}
+.footer-right{font-size:12px;color:var(--muted);}
+.footer-right span{color:var(--gold);}
+
+/* ===== FAQ MODAL ===== */
+.faq-overlay{
+  position:fixed;inset:0;z-index:1100;
+  background:rgba(3,5,13,0.9);backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.faq-overlay.open{opacity:1;pointer-events:all;}
+.faq-box{
+  width:100%;max-width:640px;max-height:88vh;overflow-y:auto;
+  background:linear-gradient(145deg,#0D1628,#060A16);
+  border:1px solid rgba(245,165,28,0.18);border-radius:26px;
+  padding:40px 38px;position:relative;
+  transform:translateY(24px);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1);
+  box-shadow:0 60px 120px rgba(0,0,0,0.8);
+}
+.faq-box::before{
+  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(245,165,28,0.6),transparent);
+}
+.faq-overlay.open .faq-box{transform:translateY(0);}
+.faq-close{
+  position:absolute;top:16px;right:16px;
+  width:30px;height:30px;background:rgba(255,255,255,0.05);
+  border:1px solid var(--border2);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted2);font-size:14px;cursor:pointer;transition:all 0.2s;
+}
+.faq-close:hover{background:rgba(255,45,85,0.1);color:#FF2D55;}
+.faq-title{
+  font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;
+  color:var(--white);margin-bottom:6px;
+}
+.faq-subtitle{font-size:13px;color:var(--muted2);margin-bottom:30px;}
+.faq-item{
+  border:1px solid var(--border2);border-radius:14px;
+  margin-bottom:10px;overflow:hidden;transition:border-color 0.2s;
+}
+.faq-item.open-faq{border-color:rgba(245,165,28,0.25);}
+.faq-q{
+  width:100%;background:transparent;border:none;
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;text-align:left;gap:12px;
+}
+.faq-q-txt{font-size:14px;font-weight:600;color:var(--text);font-family:'Cabinet Grotesk',sans-serif;line-height:1.4;}
+.faq-item.open-faq .faq-q-txt{color:var(--gold);}
+.faq-arrow{
+  width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.04);
+  border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:12px;color:var(--muted);transition:all 0.3s;
+}
+.faq-item.open-faq .faq-arrow{background:rgba(245,165,28,0.1);border-color:rgba(245,165,28,0.3);color:var(--gold);transform:rotate(180deg);}
+.faq-a{
+  display:none;padding:0 20px 16px;
+  font-size:13px;color:var(--muted2);line-height:1.75;
+}
+.faq-item.open-faq .faq-a{display:block;}
+.faq-a a{color:var(--gold);text-decoration:none;}
+.faq-a a:hover{text-decoration:underline;}
+
+/* ===== SIGN-UP MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(3,5,13,0.85);
+  backdrop-filter:blur(14px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{
+  width:100%;max-width:500px;
+  background:linear-gradient(145deg,#0D1628,#060A16);
+  border:1px solid rgba(245,165,28,0.18);
+  border-radius:26px;
+  padding:40px 38px;
+  position:relative;
+  transform:translateY(28px) scale(0.97);
+  transition:transform 0.35s cubic-bezier(0.34,1.36,0.64,1);
+  box-shadow:0 0 100px rgba(245,165,28,0.08),0 60px 120px rgba(0,0,0,0.8);
+  overflow:hidden;
+  max-height:92vh;
+  overflow-y:auto;
+}
+.modal-box::before{
+  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(245,165,28,0.6),transparent);
+  pointer-events:none;
+}
+.modal-box::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 40% at 50% -10%,rgba(245,165,28,0.06),transparent);
+  pointer-events:none;
+}
+.modal-overlay.open .modal-box{transform:translateY(0) scale(1);}
+.modal-close{
+  position:absolute;top:18px;right:18px;
+  width:32px;height:32px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:var(--muted2);font-size:16px;cursor:pointer;transition:all 0.2s;z-index:10;
+}
+.modal-close:hover{background:rgba(255,45,85,0.1);border-color:rgba(255,45,85,0.3);color:#FF2D55;}
+.modal-logo{display:flex;align-items:center;gap:10px;margin-bottom:26px;}
+.modal-logo-mark{
+  width:30px;height:30px;
+  background:linear-gradient(135deg,var(--gold),#E8921A);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;box-shadow:0 0 16px rgba(245,165,28,0.4);
+}
+.modal-logo-txt{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--white);}
+.modal-logo-txt span{color:var(--gold);}
+.modal-steps{display:flex;align-items:center;gap:6px;margin-bottom:28px;}
+.m-dot{
+  width:28px;height:4px;border-radius:4px;background:var(--border2);
+  transition:background 0.3s,width 0.3s;
+}
+.m-dot.active{background:var(--gold);width:44px;}
+.m-dot.done{background:rgba(245,165,28,0.4);}
+.mscreen{display:none;}
+.mscreen.active{display:block;animation:mIn 0.3s ease both;}
+@keyframes mIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+.m-heading{
+  font-family:'Clash Display',sans-serif;font-size:1.55rem;font-weight:700;
+  color:var(--white);letter-spacing:0.3px;margin-bottom:6px;
+}
+.m-sub{font-size:13.5px;color:var(--muted2);margin-bottom:24px;line-height:1.55;}
+.plan-cards{display:flex;flex-direction:column;gap:11px;margin-bottom:22px;}
+.plan-card{
+  border:1.5px solid var(--border2);border-radius:16px;
+  padding:17px 18px;cursor:pointer;position:relative;
+  transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;
+}
+.plan-card:hover{border-color:rgba(245,165,28,0.3);background:rgba(245,165,28,0.03);}
+.plan-card.selected{
+  border-color:var(--gold);
+  background:rgba(245,165,28,0.06);
+  box-shadow:0 0 24px rgba(245,165,28,0.08);
+}
+.plan-radio{
+  position:absolute;top:17px;right:17px;
+  width:18px;height:18px;border-radius:50%;
+  border:1.5px solid var(--border2);transition:all 0.2s;
+}
+.plan-card.selected .plan-radio{border-color:var(--gold);background:var(--gold);}
+.plan-card.selected .plan-radio::after{
+  content:'';display:block;width:6px;height:6px;border-radius:50%;
+  background:#03050D;margin:4px auto;
+}
+.plan-hdr{display:flex;align-items:center;gap:9px;margin-bottom:4px;}
+.plan-name{font-family:'Clash Display',sans-serif;font-size:14px;font-weight:600;color:var(--white);}
+.plan-tag{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 9px;border-radius:100px;}
+.tag-free{background:rgba(5,229,154,0.12);color:var(--green);border:1px solid rgba(5,229,154,0.2);}
+.tag-pro{background:rgba(245,165,28,0.12);color:var(--gold);border:1px solid rgba(245,165,28,0.2);}
+.plan-price{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;color:var(--white);line-height:1;}
+.plan-price span{font-size:12px;font-weight:400;color:var(--muted);font-family:'Cabinet Grotesk',sans-serif;}
+.plan-feats{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+.plan-feats li{list-style:none;font-size:12px;color:var(--muted2);display:flex;gap:7px;align-items:center;}
+.plan-feats li::before{content:'✓';color:var(--green);font-weight:700;font-size:11px;}
+.mfield{margin-bottom:14px;}
+.mfield label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.minput-wrap{position:relative;}
+.minput-ico{
+  position:absolute;top:0;bottom:0;left:0;width:46px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;pointer-events:none;border-right:1px solid var(--border);
+}
+.mfield input{padding-left:56px !important;font-size:13px !important;border-radius:12px !important;}
+.card-notice{
+  display:flex;align-items:center;gap:9px;
+  background:rgba(5,229,154,0.05);border:1px solid rgba(5,229,154,0.15);
+  border-radius:12px;padding:12px 14px;margin-bottom:16px;
+}
+.card-notice p{font-size:12px;color:var(--muted2);line-height:1.5;}
+.card-notice p b{color:var(--green);}
+.mrow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pay-methods{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.pay-method{
+  flex:1;min-width:70px;
+  border:1.5px solid var(--border2);border-radius:12px;
+  padding:10px 8px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;
+  background:rgba(3,5,13,0.5);
+}
+.pay-method:hover{border-color:rgba(245,165,28,0.35);background:rgba(245,165,28,0.04);}
+.pay-method.pm-active{border-color:var(--gold);background:rgba(245,165,28,0.08);box-shadow:0 0 16px rgba(245,165,28,0.1);}
+.pay-method svg{width:38px;height:24px;display:block;}
+.pay-method-label{font-size:9px;font-weight:700;letter-spacing:0.8px;color:var(--muted);text-transform:uppercase;}
+.pay-method.pm-active .pay-method-label{color:var(--gold);}
+.card-input-wrap{position:relative;margin-bottom:0;}
+.card-brand-icon{
+  position:absolute;top:50%;right:14px;transform:translateY(-50%);
+  width:40px;height:26px;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;transition:opacity 0.2s;
+}
+.card-brand-icon svg{width:40px;height:26px;}
+.inp-card-num{padding-right:62px !important;}
+.paypal-block{
+  background:rgba(0,48,135,0.12);border:1px solid rgba(0,112,243,0.2);
+  border-radius:13px;padding:18px;text-align:center;
+}
+.paypal-block p{font-size:12px;color:var(--muted2);margin-top:8px;line-height:1.5;}
+.paypal-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#FFC439;border:none;border-radius:10px;
+  padding:11px 24px;cursor:pointer;font-weight:700;font-size:14px;
+  color:#003087;transition:all 0.2s;margin-top:2px;
+}
+.paypal-btn:hover{background:#f0b429;transform:translateY(-1px);}
+.sec-badges{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap;}
+.sec-badge{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;}
+.sec-badge svg{width:13px;height:13px;opacity:0.6;}
+.m-btn-gold{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,#F5A51C,#E0891A);border:none;border-radius:13px;
+  font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;letter-spacing:1.5px;
+  color:#03050D;cursor:pointer;transition:all 0.28s;margin-top:6px;
+  box-shadow:0 8px 28px rgba(245,165,28,0.28);position:relative;overflow:hidden;
+}
+.m-btn-gold::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left 0.5s;
+}
+.m-btn-gold:hover::before{left:100%;}
+.m-btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(245,165,28,0.45);}
+.m-btn-back{
+  background:transparent;border:1px solid var(--border2);color:var(--muted2);
+  border-radius:11px;padding:10px 18px;font-size:13px;cursor:pointer;
+  font-family:'Cabinet Grotesk',sans-serif;transition:all 0.2s;margin-top:10px;
+}
+.m-btn-back:hover{border-color:rgba(255,255,255,0.15);color:var(--text);}
+.m-fine{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6;}
+.m-fine b{color:var(--muted2);}
+.success-wrap{text-align:center;}
+.success-ring{
+  width:70px;height:70px;background:rgba(5,229,154,0.08);
+  border:1.5px solid rgba(5,229,154,0.2);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin:0 auto 18px;
+  box-shadow:0 0 40px rgba(5,229,154,0.12);
+  animation:ring-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes ring-pop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.live-dot-row{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--green-dim);border:1px solid rgba(5,229,154,0.15);
+  padding:5px 14px;border-radius:100px;font-size:11px;color:var(--green);
+  font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;margin-bottom:18px;
+}
+.apikey-box{
+  background:rgba(3,5,13,0.9);border:1px solid rgba(245,165,28,0.18);
+  border-radius:13px;padding:14px 50px 14px 16px;margin:16px 0;
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);
+  word-break:break-all;position:relative;text-align:left;
+}
+.copy-btn{
+  position:absolute;top:10px;right:10px;
+  background:rgba(245,165,28,0.1);border:1px solid rgba(245,165,28,0.2);
+  color:var(--gold);border-radius:7px;padding:4px 11px;
+  font-size:11px;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;
+  font-weight:600;transition:all 0.2s;
+}
+.copy-btn:hover{background:rgba(245,165,28,0.2);}
+.plan-confirm-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(245,165,28,0.06);border:1px solid rgba(245,165,28,0.15);
+  padding:7px 16px;border-radius:100px;font-size:12.5px;color:var(--gold);
+  font-weight:600;margin-bottom:18px;
+}
+.divider{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:20px;}
+.div-line{flex:1;height:1px;background:var(--border);}
+.div-txt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+
+@media(max-width:900px){
+  nav{padding:0 20px;}.nav-center{display:none;}
+  .feat-grid{grid-template-columns:1fr;}
+  .steps-row{grid-template-columns:1fr 1fr;}.steps-row::before{display:none;}
+  .footer-main{grid-template-columns:1fr 1fr;gap:32px;padding:48px 24px 36px;}
+  .footer-bottom{padding:16px 24px;}
+  .cta-inner{padding:40px 24px;}
+  .faq-box{padding:28px 20px;}
+  .modal-box{padding:28px 22px;}
+}
+@media(max-width:640px){
+  .det-grid{grid-template-columns:1fr;}
+  .stat-bar{flex-wrap:wrap;}
+  .stat-item{flex:1 0 40%;}
+}
+/* SUBSCRIPTION PAYWALL MODAL */
+.paywall-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;
+}
+.paywall-overlay.open{display:flex;}
+.paywall-box{
+  background:#060A16;
+  border:1px solid rgba(245,165,28,0.3);
+  border-radius:28px;width:600px;max-width:95vw;
+  padding:48px 44px;text-align:center;position:relative;
+  box-shadow:0 40px 100px rgba(0,0,0,0.7),0 0 60px rgba(245,165,28,0.08);
+  animation:pwIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes pwIn{from{opacity:0;transform:scale(0.85);}to{opacity:1;transform:scale(1);}}
+.paywall-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  border-radius:28px 28px 0 0;
+}
+.paywall-limit-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,45,85,0.1);border:1px solid rgba(255,45,85,0.3);
+  padding:8px 20px;border-radius:100px;
+  font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--red);margin-bottom:20px;
+}
+.paywall-title{
+  font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;
+  color:var(--white);margin-bottom:10px;line-height:1.2;
+}
+.paywall-title span{color:var(--gold);}
+.paywall-sub{font-size:1rem;color:var(--muted2);line-height:1.7;margin-bottom:32px;}
+.paywall-plans{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;}
+.pw-plan{
+  background:rgba(13,22,40,0.9);border:1px solid rgba(255,255,255,0.07);
+  border-radius:18px;padding:22px 18px;text-align:left;
+  transition:all 0.25s;position:relative;overflow:hidden;
+}
+.pw-plan.featured{border-color:rgba(245,165,28,0.4);background:rgba(245,165,28,0.05);}
+.pw-plan-badge{
+  position:absolute;top:12px;right:12px;
+  background:var(--gold);color:#03050D;
+  font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;
+}
+.pw-plan-name{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:600;}
+.pw-plan-price{font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;color:var(--white);margin-bottom:4px;}
+.pw-plan-price span{font-size:0.85rem;color:var(--muted2);font-family:'Cabinet Grotesk',sans-serif;}
+.pw-plan-calls{font-size:12px;color:var(--green);font-weight:600;margin-bottom:10px;}
+.pw-plan-features{list-style:none;}
+.pw-plan-features li{font-size:12px;color:var(--muted2);padding:2px 0;}
+.pw-plan-features li::before{content:'✓ ';color:var(--green);}
+.paywall-cta{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,var(--gold),#E8921A);
+  border:none;border-radius:14px;
+  font-family:'Cabinet Grotesk',sans-serif;font-size:1rem;font-weight:800;
+  color:#03050D;cursor:pointer;transition:all 0.25s;
+  box-shadow:0 0 30px rgba(245,165,28,0.3);
+  margin-bottom:14px;letter-spacing:0.5px;
+}
+.paywall-cta:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(245,165,28,0.5);}
+.paywall-dismiss{
+  font-size:12px;color:var(--muted);cursor:pointer;
+  background:none;border:none;text-decoration:underline;
+  font-family:'Cabinet Grotesk',sans-serif;
+}
+.paywall-dismiss:hover{color:var(--text);}
+.free-uses-counter{
+  position:fixed;bottom:24px;right:24px;z-index:500;
+  background:rgba(13,22,40,0.95);border:1px solid rgba(245,165,28,0.2);
+  border-radius:14px;padding:10px 16px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--muted2);backdrop-filter:blur(20px);
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.free-uses-counter .uses-left{color:var(--gold);font-weight:700;font-size:14px;}
+</style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+<div class="grid"></div>
+<div class="scanlines"></div>
+
+<!-- ===== SIGN-UP MODAL ===== -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div class="modal-logo">
+      <div class="modal-logo-mark">🛡</div>
+      <div class="modal-logo-txt">Verify<span>Shield</span></div>
+    </div>
+
+    <div class="modal-steps">
+      <div class="m-dot active" id="mdot1"></div>
+      <div class="m-dot" id="mdot2"></div>
+      <div class="m-dot" id="mdot3"></div>
+    </div>
+
+    <!-- SCREEN 1: Choose Plan -->
+    <div class="mscreen active" id="ms1">
+      <div class="m-heading">Choose Your Plan</div>
+      <div class="m-sub">Start free — no credit card required for demo. Cancel monthly anytime.</div>
+      <div class="plan-cards">
+        <div class="plan-card selected" id="pc-demo" onclick="selectPlan('demo')">
+          <div class="plan-radio"></div>
+          <div class="plan-hdr">
+            <div class="plan-name">Demo Plan</div>
+            <div class="plan-tag tag-free">FREE · 5 DAYS</div>
+          </div>
+          <div class="plan-price">$0 <span>/ 5 days trial</span></div>
+          <ul class="plan-feats">
+            <li>500 API calls/day</li>
+            <li>Email, Phone &amp; IP checks</li>
+            <li>Basic risk scoring</li>
+            <li>No credit card needed</li>
+          </ul>
+        </div>
+        <div class="plan-card" id="pc-monthly" onclick="selectPlan('monthly')">
+          <div class="plan-radio"></div>
+          <div class="plan-hdr">
+            <div class="plan-name">Monthly Pro</div>
+            <div class="plan-tag tag-pro">MOST POPULAR</div>
+          </div>
+          <div class="plan-price">$25 <span>/ month · cancel anytime</span></div>
+          <ul class="plan-feats">
+            <li>50,000 API calls/month</li>
+            <li>Full fraud detection suite</li>
+            <li>Real-time risk scoring &amp; analytics</li>
+            <li>Priority support</li>
+            <li>Admin dashboard access</li>
+          </ul>
+        </div>
+      </div>
+      <button class="m-btn-gold" onclick="goMS(2)">Continue →</button>
+      <p class="m-fine">🔒 Secure · No spam · <b>Cancel anytime</b></p>
+    </div>
+
+    <!-- SCREEN 2: Account Details -->
+    <div class="mscreen" id="ms2">
+      <div class="m-heading">Create Account</div>
+      <div class="m-sub" id="ms2-sub">Setting up your <b style="color:var(--gold)">Demo Plan</b> — free for 5 days.</div>
+
+      <div class="mfield">
+        <label>Full Name</label>
+        <div class="minput-wrap">
+          <div class="minput-ico">👤</div>
+          <input type="text" id="inp-name" placeholder="Ahmad Hassan">
+        </div>
+      </div>
+      <div class="mfield">
+        <label>Work Email</label>
+        <div class="minput-wrap">
+          <div class="minput-ico">✉</div>
+          <input type="email" id="inp-email" placeholder="ahmad@company.com">
+        </div>
+      </div>
+      <div class="mfield">
+        <label>Password</label>
+        <div class="minput-wrap">
+          <div class="minput-ico">🔑</div>
+          <input type="password" id="inp-pass" placeholder="Min. 8 characters">
+        </div>
+      </div>
+
+      <!-- Payment fields (monthly only) -->
+      <div id="card-fields" style="display:none">
+        <div class="card-notice">
+          <span style="font-size:18px">🔒</span>
+          <p>Your card <b>won't be charged</b> until after your 5-day demo. Cancel anytime.</p>
+        </div>
+
+        <div class="mfield" style="margin-bottom:16px">
+          <label>Payment Method</label>
+          <div class="pay-methods">
+            <div class="pay-method pm-active" id="pm-card" onclick="switchPayMethod('card')">
+              <svg viewBox="0 0 38 24" fill="none"><rect width="38" height="24" rx="4" fill="#1A1F71"/><text x="4" y="17" font-family="Arial" font-size="11" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">VISA</text></svg>
+              <span class="pay-method-label">Visa</span>
+            </div>
+            <div class="pay-method" id="pm-mc" onclick="switchPayMethod('mc')">
+              <svg viewBox="0 0 38 24" fill="none"><rect width="38" height="24" rx="4" fill="#252525"/><circle cx="15" cy="12" r="7" fill="#EB001B"/><circle cx="23" cy="12" r="7" fill="#F79E1B"/><path d="M19 6.8A7 7 0 0 1 23 12a7 7 0 0 1-4 5.2A7 7 0 0 1 15 12a7 7 0 0 1 4-5.2z" fill="#FF5F00"/></svg>
+              <span class="pay-method-label">Mastercard</span>
+            </div>
+            <div class="pay-method" id="pm-amex" onclick="switchPayMethod('amex')">
+              <svg viewBox="0 0 38 24" fill="none"><rect width="38" height="24" rx="4" fill="#2557D6"/><text x="4" y="17" font-family="Arial" font-size="8" font-weight="800" fill="#FFFFFF" letter-spacing="0.2">AMEX</text></svg>
+              <span class="pay-method-label">Amex</span>
+            </div>
+            <div class="pay-method" id="pm-paypal" onclick="switchPayMethod('paypal')">
+              <svg viewBox="0 0 38 24" fill="none"><rect width="38" height="24" rx="4" fill="#003087"/><text x="5" y="10" font-family="Arial" font-size="7" font-weight="900" fill="#009CDE">Pay</text><text x="5" y="19" font-family="Arial" font-size="7" font-weight="900" fill="#012169">Pal</text></svg>
+              <span class="pay-method-label">PayPal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card form -->
+        <div id="pm-card-form">
+          <div class="mfield">
+            <label>Cardholder Name</label>
+            <div class="minput-wrap">
+              <div class="minput-ico">👤</div>
+              <input type="text" id="inp-cholder" placeholder="Ahmad Hassan">
+            </div>
+          </div>
+          <div class="mfield">
+            <label>Card Number</label>
+            <div class="minput-wrap card-input-wrap">
+              <div class="minput-ico">💳</div>
+              <input type="text" id="inp-card" class="inp-card-num" placeholder="0000 0000 0000 0000" maxlength="19">
+              <div class="card-brand-icon" id="cardBrandIcon">
+                <svg viewBox="0 0 40 26" fill="none"><rect width="40" height="26" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="mrow2">
+            <div class="mfield">
+              <label>Expiry Date</label>
+              <div class="minput-wrap">
+                <div class="minput-ico" style="font-size:11px;letter-spacing:-1px;">MM/YY</div>
+                <input type="text" id="inp-expiry" placeholder="08 / 28" maxlength="7">
+              </div>
+            </div>
+            <div class="mfield">
+              <label>CVV / CVC</label>
+              <div class="minput-wrap">
+                <div class="minput-ico">🔐</div>
+                <input type="text" id="inp-cvv" placeholder="•••" maxlength="4">
+              </div>
+            </div>
+          </div>
+          <div class="sec-badges">
+            <div class="sec-badge">
+              <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L2 3v4c0 3 2.2 5.4 5 6 2.8-.6 5-3 5-6V3L7 1z" stroke="#05E59A" stroke-width="1.2" fill="none"/></svg>
+              256-BIT SSL
+            </div>
+            <div class="sec-badge">
+              <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="rgba(245,165,28,0.6)" stroke-width="1.2"/><path d="M4.5 7l2 2 3-3" stroke="rgba(245,165,28,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+              PCI DSS
+            </div>
+            <div class="sec-badge">
+              <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="5" width="10" height="8" rx="1.5" stroke="rgba(75,143,255,0.6)" stroke-width="1.2"/><path d="M5 5V4a2 2 0 0 1 4 0v1" stroke="rgba(75,143,255,0.6)" stroke-width="1.2"/></svg>
+              3D SECURE
+            </div>
+            <div class="sec-badge">
+              <svg viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="rgba(255,255,255,0.3)" stroke-width="1.2" stroke-linecap="round"/></svg>
+              ENCRYPTED
+            </div>
+          </div>
+        </div>
+
+        <!-- PayPal form -->
+        <div id="pm-paypal-form" style="display:none">
+          <div class="paypal-block">
+            <svg width="90" height="24" viewBox="0 0 90 24" fill="none">
+              <text x="0" y="18" font-family="Arial" font-size="18" font-weight="900" fill="#009CDE">Pay</text>
+              <text x="30" y="18" font-family="Arial" font-size="18" font-weight="900" fill="#003087">Pal</text>
+            </svg>
+            <p>You'll be redirected to PayPal to securely complete your subscription.</p>
+            <button class="paypal-btn" onclick="submitSignup()">
+              Pay with PayPal
+            </button>
+          </div>
+          <div class="sec-badges" style="margin-top:14px">
+            <div class="sec-badge">
+              <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L2 3v4c0 3 2.2 5.4 5 6 2.8-.6 5-3 5-6V3L7 1z" stroke="#05E59A" stroke-width="1.2" fill="none"/></svg>
+              BUYER PROTECTION
+            </div>
+            <div class="sec-badge">
+              <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="rgba(245,165,28,0.6)" stroke-width="1.2"/><path d="M4.5 7l2 2 3-3" stroke="rgba(245,165,28,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+              CANCEL ANYTIME
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="m-btn-gold" onclick="submitSignup()">⚡ Get My API Key</button>
+      <p class="m-fine">🔒 256-bit SSL · Your data is secure · <b>Cancel anytime</b></p>
+      <br>
+      <button class="m-btn-back" onclick="goMS(1)">← Back</button>
+    </div>
+
+    <!-- SCREEN 3: Success -->
+    <div class="mscreen" id="ms3">
+      <div class="success-wrap">
+        <div class="success-ring">✅</div>
+        <div class="live-dot-row"><div class="pulse"></div> API Key Active</div>
+        <div class="m-heading" style="font-size:1.35rem">You're Live!</div>
+        <p class="m-sub" id="ms3-sub">Your Demo API key is ready. You have <b style="color:var(--gold)">5 days</b> free to explore VerifyShield.</p>
+        <div class="plan-confirm-pill" id="ms3-plan-pill">🎁 Demo Plan · Free 5-Day Trial</div>
+        <div class="apikey-box" id="apiKeyBox">
+          <span id="apiKeyText">vs_demo_xxxxxxxxxxxxxxxxxxxxxxxx</span>
+          <button class="copy-btn" onclick="copyKey()">Copy</button>
+        </div>
+        <p style="font-size:11.5px;color:var(--muted);margin-bottom:20px;">Save this key — it won't be shown again.</p>
+        <button class="m-btn-gold" onclick="closeModal()">Open Dashboard →</button>
+        <p class="m-fine" style="margin-top:10px">Check your email for setup guide &amp; docs.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- ===== END SIGN-UP MODAL ===== -->
+
+<nav>
+  <div class="logo">
+    <div class="logo-mark"><img src="logo.png" alt="VerifyShield Logo"/></div>
+    <div class="logo-text">
+      <span class="verify">Verify</span>
+      <span class="shield">Shield</span>
+    </div>
+  </div>
+  <div class="nav-center">
+    <button class="nav-link">Platform</button>
+    <button class="nav-link">API Docs</button>
+    <button class="nav-link">Pricing</button>
+    <button class="nav-link">Enterprise</button>
+  </div>
+  <div class="nav-right">
+    <div class="badge-live"><div class="pulse"></div>Systems Online</div>
+    <button class="btn-nav" onclick="openModal()">Get API Key</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-pretag">
+    <span class="hero-pretag-dot"></span>
+    Fraud Intelligence Platform · By Ahmad
+  </div>
+  <h1 class="hero-title">
+    <span class="line1">DETECT</span>
+    <span class="line2">FRAUD</span>
+    <span class="line3">INSTANTLY</span>
+  </h1>
+  <p class="hero-sub">
+    Real-time AI-powered risk scoring for <strong>emails, phone numbers &amp; IPs</strong>.
+    Stop fraudsters before they reach your platform.
+  </p>
+  <div class="stat-bar">
+    <div class="stat-item">
+      <div class="stat-num">99<sup>%</sup></div>
+      <div class="stat-label">Detection Accuracy</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">&lt;1<sup>s</sup></div>
+      <div class="stat-label">Response Time</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">24<sup>/7</sup></div>
+      <div class="stat-label">Live Monitoring</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3M<sup>+</sup></div>
+      <div class="stat-label">Checks Performed</div>
+    </div>
+  </div>
+
+  <div class="checker-outer">
+    <div class="tab-strip">
+      <button class="tab-btn active" onclick="switchTab('email')"><span class="tab-icon">✉️</span> Email Check</button>
+      <button class="tab-btn" onclick="switchTab('phone')"><span class="tab-icon">📞</span> Phone Check</button>
+      <button class="tab-btn" onclick="switchTab('ip')"><span class="tab-icon">🌐</span> IP Analysis</button>
+    </div>
+    <div class="checker-card">
+
+      <div class="panel active" id="panel-email">
+        <div class="card-heading">Email Risk Analysis</div>
+        <div class="card-sub">Detect disposable addresses, domain reputation &amp; behavioral signals</div>
+        <div class="field-lbl">Customer Email Address</div>
+        <div class="input-wrap">
+          <div class="input-pre">✉</div>
+          <input type="email" id="emailInput" placeholder="customer@domain.com" onkeypress="if(event.key==='Enter')checkEmail()"/>
+        </div>
+        <button class="cta-btn" id="emailBtn" onclick="checkEmail()">⚡ &nbsp;RUN EMAIL ANALYSIS</button>
+        <div class="result" id="result-email">
+          <div class="res-top">
+            <div class="status-pill" id="email-badge"></div>
+            <div class="score-big"><span id="email-scoreNum">0</span><small> / 100</small></div>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" id="email-bar"></div></div>
+          <div class="det-grid">
+            <div class="det-box"><div class="det-key">Risk Level</div><div class="det-val" id="email-risk">—</div></div>
+            <div class="det-box"><div class="det-key">Disposable</div><div class="det-val" id="email-disposable">—</div></div>
+          </div>
+          <div class="check-pills">
+            <div class="check-pill">✓ Domain Reputation</div>
+            <div class="check-pill">✓ Behavioral Pattern</div>
+            <div class="check-pill">✓ Threat Intelligence</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-phone">
+        <div class="card-heading">Phone Risk Analysis</div>
+        <div class="card-sub">Identify VOIP lines, unregistered numbers &amp; carrier signals</div>
+        <div class="field-lbl">Phone Number (with country code)</div>
+        <div class="input-wrap">
+          <div class="input-pre">📞</div>
+          <input type="tel" id="phoneInput" placeholder="+1 555 000 0000" onkeypress="if(event.key==='Enter')checkPhone()"/>
+        </div>
+        <button class="cta-btn" id="phoneBtn" onclick="checkPhone()">⚡ &nbsp;RUN PHONE ANALYSIS</button>
+        <div class="result" id="result-phone">
+          <div class="res-top">
+            <div class="status-pill" id="phone-badge"></div>
+            <div class="score-big" style="font-size:1.3rem"><span id="phone-valid">—</span></div>
+          </div>
+          <div class="det-grid">
+            <div class="det-box"><div class="det-key">Risk Level</div><div class="det-val" id="phone-risk">—</div></div>
+            <div class="det-box"><div class="det-key">Line Type</div><div class="det-val" id="phone-lineType">—</div></div>
+            <div class="det-box"><div class="det-key">Country</div><div class="det-val" id="phone-country">—</div></div>
+            <div class="det-box"><div class="det-key">Carrier</div><div class="det-val" id="phone-carrier">—</div></div>
+          </div>
+          <div class="check-pills">
+            <div class="check-pill">✓ Line Classification</div>
+            <div class="check-pill">✓ Carrier Verified</div>
+            <div class="check-pill">✓ VOIP Detection</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-ip">
+        <div class="card-heading">IP Threat Analysis</div>
+        <div class="card-sub">Detect VPNs, Tor nodes, proxies, bots &amp; geo-anomalies in real time</div>
+        <div class="field-lbl">IP Address</div>
+        <div class="input-wrap">
+          <div class="input-pre">🌐</div>
+          <input type="text" id="ipInput" placeholder="192.168.1.1" onkeypress="if(event.key==='Enter')checkIP()"/>
+        </div>
+        <button class="cta-btn" id="ipBtn" onclick="checkIP()">⚡ &nbsp;RUN IP ANALYSIS</button>
+        <div class="result" id="result-ip">
+          <div class="res-top">
+            <div class="status-pill" id="ip-badge"></div>
+            <div class="score-big"><span id="ip-threatScore">0</span><small> / 100</small></div>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" id="ip-bar"></div></div>
+          <div class="det-grid">
+            <div class="det-box"><div class="det-key">Country</div><div class="det-val" id="ip-country">—</div></div>
+            <div class="det-box"><div class="det-key">City</div><div class="det-val" id="ip-city">—</div></div>
+            <div class="det-box"><div class="det-key">VPN</div><div class="det-val" id="ip-vpn">—</div></div>
+            <div class="det-box"><div class="det-key">Tor</div><div class="det-val" id="ip-tor">—</div></div>
+            <div class="det-box"><div class="det-key">Proxy</div><div class="det-val" id="ip-proxy">—</div></div>
+            <div class="det-box"><div class="det-key">Bot Traffic</div><div class="det-val" id="ip-bot">—</div></div>
+          </div>
+          <div class="check-pills">
+            <div class="check-pill">✓ Geolocation</div>
+            <div class="check-pill">✓ VPN / Proxy / Tor</div>
+            <div class="check-pill">✓ Bot Fingerprint</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">EMAIL VALIDATION <span>✓</span></div>
+    <div class="marquee-item">PHONE INTELLIGENCE <span>✓</span></div>
+    <div class="marquee-item">IP GEOLOCATION <span>✓</span></div>
+    <div class="marquee-item">VPN DETECTION <span>✓</span></div>
+    <div class="marquee-item">TOR EXIT NODES <span>✓</span></div>
+    <div class="marquee-item">BOT TRAFFIC <span>✓</span></div>
+    <div class="marquee-item">DISPOSABLE EMAILS <span>✓</span></div>
+    <div class="marquee-item">CARRIER LOOKUP <span>✓</span></div>
+    <div class="marquee-item">REAL-TIME API <span>✓</span></div>
+    <div class="marquee-item">RISK SCORING <span>✓</span></div>
+    <div class="marquee-item">EMAIL VALIDATION <span>✓</span></div>
+    <div class="marquee-item">PHONE INTELLIGENCE <span>✓</span></div>
+    <div class="marquee-item">IP GEOLOCATION <span>✓</span></div>
+    <div class="marquee-item">VPN DETECTION <span>✓</span></div>
+    <div class="marquee-item">TOR EXIT NODES <span>✓</span></div>
+    <div class="marquee-item">BOT TRAFFIC <span>✓</span></div>
+    <div class="marquee-item">DISPOSABLE EMAILS <span>✓</span></div>
+    <div class="marquee-item">CARRIER LOOKUP <span>✓</span></div>
+    <div class="marquee-item">REAL-TIME API <span>✓</span></div>
+    <div class="marquee-item">RISK SCORING <span>✓</span></div>
+  </div>
+</div>
+
+<section class="terminal-section">
+  <div class="section-eyebrow">Live Engine Feed</div>
+  <div class="section-title">Watch Fraud Get Blocked</div>
+  <div class="section-sub">Every check runs through our real-time intelligence engine — see it in action.</div>
+  <div class="terminal">
+    <div class="term-bar">
+      <span class="tc r"></span><span class="tc y"></span><span class="tc g"></span>
+      <span class="term-title-txt">verifyshield — fraud-engine v3.0 — live stream</span>
+    </div>
+    <div class="term-body">
+      <div class="tline"><span class="tp">$</span><span class="t-dim">engine.init() — loading modules...</span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-blue">[ OK ] Email reputation DB — <strong>12.4M</strong> records loaded</span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-blue">[ OK ] IP threat feed — <strong>real-time</strong> sync active</span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-blue">[ OK ] Phone carrier DB — <strong>210</strong> countries covered</span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-green">Incoming session → fingerprint analysis running...</span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-green">Pattern match confidence: <strong class="t-gold">94.7%</strong></span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-muted">Behavioral anomaly detected — cross-referencing...</span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-warn">⚠ FRAUD DETECTED — Transaction blocked · Score: 96/100</span></div>
+      <div class="tline"><span class="tp">$</span><span class="t-muted">Awaiting next request <span class="typed-cursor"></span></span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="div-line"></div><div class="div-txt">How It Works</div><div class="div-line"></div></div>
+<section class="hiw-section" style="padding-top:70px;">
+  <div class="section-eyebrow" style="margin-bottom:14px;">Simple 4-Step Process</div>
+  <div class="section-title" style="margin-bottom:60px;">From Input to Verdict in Under 1s</div>
+  <div class="steps-row">
+    <div class="step">
+      <div class="step-circle">1</div>
+      <div class="step-title">Submit Data</div>
+      <div class="step-desc">Pass an email, phone, or IP via API or our dashboard interface.</div>
+    </div>
+    <div class="step">
+      <div class="step-circle">2</div>
+      <div class="step-title">AI Analysis</div>
+      <div class="step-desc">Our engine cross-checks 100+ threat signals and behavioral patterns.</div>
+    </div>
+    <div class="step">
+      <div class="step-circle">3</div>
+      <div class="step-title">Risk Scored</div>
+      <div class="step-desc">A precise 0–100 risk score is generated with full breakdown metadata.</div>
+    </div>
+    <div class="step">
+      <div class="step-circle">4</div>
+      <div class="step-title">Take Action</div>
+      <div class="step-desc">Block, flag, or allow — your rules, enforced automatically in real time.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="div-line"></div><div class="div-txt">Capabilities</div><div class="div-line"></div></div>
+<section class="features-section">
+  <div class="section-eyebrow" style="margin-bottom:14px;margin-top:70px;">Why VerifyShield?</div>
+  <div class="section-title" style="margin-bottom:10px;">Enterprise-Grade Fraud Intelligence</div>
+  <div class="section-sub">Built for platforms that cannot afford a single fraudulent transaction.</div>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-ghost-num">01</div>
+      <div class="feat-icon-wrap">🧠</div>
+      <div class="feat-title">AI Risk Scoring</div>
+      <div class="feat-desc">ML models trained on millions of fraud signals deliver an accurate 0–100 risk score in milliseconds — not seconds.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ghost-num">02</div>
+      <div class="feat-icon-wrap">⚡</div>
+      <div class="feat-title">Real-Time Detection</div>
+      <div class="feat-desc">Sub-second verdicts. Every check resolves before your user finishes loading — zero latency impact on UX.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ghost-num">03</div>
+      <div class="feat-icon-wrap">🔒</div>
+      <div class="feat-title">Disposable Detection</div>
+      <div class="feat-desc">Automatically flags throwaway and temporary email domains used by fraudsters to bypass verification.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ghost-num">04</div>
+      <div class="feat-icon-wrap">📞</div>
+      <div class="feat-title">Phone Intelligence</div>
+      <div class="feat-desc">Validates numbers across 210+ countries — detects VOIP, unregistered lines, and full carrier metadata.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ghost-num">05</div>
+      <div class="feat-icon-wrap">🌍</div>
+      <div class="feat-title">IP Threat Analysis</div>
+      <div class="feat-desc">Pinpoints VPNs, Tor nodes, proxies, and bot traffic with real-time geolocation and threat scoring.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ghost-num">06</div>
+      <div class="feat-icon-wrap">🔑</div>
+      <div class="feat-title">API Key Management</div>
+      <div class="feat-desc">Issue unique keys per client, enforce usage limits, and audit all activity from a single admin panel.</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-title">Ready to Stop Fraud<br>Before It Starts?</div>
+    <div class="cta-sub">Get your API key in 60 seconds. No credit card required for the demo plan.</div>
+    <div class="cta-btns">
+      <button class="btn-primary" onclick="openModal()">Get Free API Key →</button>
+      <button class="btn-outline">View API Docs</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ MODAL ===== -->
+<div class="faq-overlay" id="faqModal" onclick="handleFaqOverlay(event)">
+  <div class="faq-box" id="faqBox">
+    <button class="faq-close" onclick="closeFaq()">✕</button>
+    <div class="faq-title">FAQs</div>
+    <div class="faq-subtitle">Everything you need to know about VerifyShield.</div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">What is VerifyShield and how does it work?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">VerifyShield is a real-time fraud intelligence API. You submit an email, phone number, or IP address via our API or dashboard, and our AI engine cross-checks 100+ threat signals — returning a risk score (0–100) with full metadata in under 1 second.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">What does the free Demo Plan include?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">The Demo Plan is completely free for 5 days — no credit card required. You get 500 API calls/day, access to email, phone, and IP checks, and a basic risk score. It's the perfect way to test VerifyShield on your platform before committing.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">How do I upgrade to Monthly Pro ($25/month)?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">Click "Get API Key" in the nav or CTA section, select the Monthly Pro plan, fill in your account details and payment method (Visa, Mastercard, Amex, or PayPal), and you'll get your API key instantly. Your subscription starts immediately.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">Can I cancel my subscription anytime?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">Yes — absolutely. There are no long-term contracts or lock-ins. You can cancel your Monthly Pro subscription at any time from your dashboard. Your API key will remain active until the end of the current billing period.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">What payment methods do you accept?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">We accept Visa, Mastercard, American Express (Amex), and PayPal. All card payments are protected with 256-bit SSL encryption, PCI DSS compliance, and 3D Secure authentication. Your payment details are never stored on our servers.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">Is my payment information secure?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">Yes. All transactions use 256-bit SSL/TLS encryption. We are PCI DSS compliant and use 3D Secure authentication. We never store raw card numbers on our servers — payments are processed through an encrypted gateway only.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">How accurate is the fraud detection?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">Our AI models achieve 99% detection accuracy, trained on millions of verified fraud signals. Risk scores are returned in under 1 second and include detailed metadata — disposable email flags, VOIP detection, VPN/Tor/proxy identification, and geolocation anomalies.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">How do I get my API key after signing up?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">Your API key is generated and shown immediately after signup — right in the confirmation screen. It is also emailed to the address you registered with. Keep it safe, as it won't be displayed again for security reasons.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <button class="faq-q">
+        <span class="faq-q-txt">I need help — how can I contact support?</span>
+        <span class="faq-arrow">▾</span>
+      </button>
+      <div class="faq-a">Email us anytime at <a href="mailto:verifyshieldforsecurity102030@gmail.com">verifyshieldforsecurity102030@gmail.com</a>. We typically respond within 24 hours. Monthly Pro subscribers receive priority support with faster response times.</div>
+    </div>
+
+  </div>
+</div>
+<!-- ===== END FAQ MODAL ===== -->
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-mark">🛡</div>
+        Verify<span>Shield</span>
+      </div>
+      <p>Real-time AI fraud intelligence for emails, phone numbers &amp; IP addresses. Stop fraudsters before they reach your platform.</p>
+      <a href="mailto:verifyshieldforsecurity102030@gmail.com" class="footer-contact-chip">
+        ✉ verifyshieldforsecurity102030@gmail.com
+      </a>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Platform</div>
+      <div class="footer-links">
+        <a href="#">Email Checker</a>
+        <a href="#">Phone Intelligence</a>
+        <a href="#">IP Analysis</a>
+        <a href="#">API Docs</a>
+        <a href="#">Pricing</a>
+        <a href="#">Enterprise</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Support</div>
+      <div class="footer-links">
+        <button onclick="openFaq()">FAQs</button>
+        <a href="mailto:verifyshieldforsecurity102030@gmail.com">Contact Us</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Status Page</a>
+        <a href="#">Changelog</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-col-title">We Accept</div>
+      <div class="pay-logos-grid">
+        <div class="pay-logo-box">
+          <svg width="38" height="14" viewBox="0 0 38 14" fill="none"><text x="0" y="13" font-family="Arial" font-size="13" font-weight="900" fill="#1A1F71" letter-spacing="-0.5">VISA</text></svg>
+          <span>Visa</span>
+        </div>
+        <div class="pay-logo-box">
+          <svg width="32" height="20" viewBox="0 0 32 20" fill="none"><circle cx="12" cy="10" r="9" fill="#EB001B"/><circle cx="20" cy="10" r="9" fill="#F79E1B"/><path d="M16 2.7A9 9 0 0 1 20 10a9 9 0 0 1-4 7.3A9 9 0 0 1 12 10a9 9 0 0 1 4-7.3z" fill="#FF5F00"/></svg>
+          <span>Mastercard</span>
+        </div>
+        <div class="pay-logo-box">
+          <svg width="38" height="16" viewBox="0 0 38 16" fill="none"><rect width="38" height="16" rx="3" fill="#2557D6"/><text x="3" y="12" font-family="Arial" font-size="8" font-weight="800" fill="#FFFFFF" letter-spacing="0.3">AMEX</text></svg>
+          <span>Amex</span>
+        </div>
+        <div class="pay-logo-box">
+          <svg width="44" height="16" viewBox="0 0 44 16" fill="none"><text x="0" y="13" font-family="Arial" font-size="12" font-weight="900" fill="#009CDE">Pay</text><text x="20" y="13" font-family="Arial" font-size="12" font-weight="900" fill="#003087">Pal</text></svg>
+          <span>PayPal</span>
+        </div>
+      </div>
+      <div class="bank-note">
+        🏦 Payments processed via encrypted gateway. <b>PCI DSS compliant</b> · 256-bit SSL · 3D Secure. Your card details are never stored on our servers.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 VerifyShield. All rights reserved.</div>
+    <div class="footer-right">Built by <span>Ahmad</span> · v3.0</div>
+  </div>
+</footer>
+
+<!-- PAYWALL MODAL -->
+<div class="paywall-overlay" id="paywallModal">
+  <div class="paywall-box">
+    <div class="paywall-limit-badge">🚫 Free Limit Reached</div>
+    <div class="paywall-title">You've Used Your <span>5 Free</span> Checks</div>
+    <div class="paywall-sub">Upgrade to keep the fraud intelligence flowing. Choose a plan and get instant API access with no limits.</div>
+    <div class="paywall-plans">
+      <div class="pw-plan">
+        <div class="pw-plan-name">Starter</div>
+        <div class="pw-plan-price">Free <span>/ 5-day trial</span></div>
+        <div class="pw-plan-calls">1,000 API calls</div>
+        <ul class="pw-plan-features">
+          <li>Email verification</li>
+          <li>Phone validation</li>
+          <li>IP threat analysis</li>
+          <li>Community support</li>
+        </ul>
+      </div>
+      <div class="pw-plan featured">
+        <div class="pw-plan-badge">⚡ Popular</div>
+        <div class="pw-plan-name">Monthly Pro</div>
+        <div class="pw-plan-price">$25 <span>/ month</span></div>
+        <div class="pw-plan-calls">50,000 API calls/month</div>
+        <ul class="pw-plan-features">
+          <li>All check types</li>
+          <li>Priority support</li>
+          <li>Full API access</li>
+          <li>Cancel anytime</li>
+        </ul>
+      </div>
+    </div>
+    <button class="paywall-cta" onclick="document.getElementById('paywallModal').classList.remove('open'); openModal();">🚀 Get Your API Key Now →</button>
+    <br/>
+    <button class="paywall-dismiss" onclick="dismissPaywall()">Maybe later — I'll lose my results</button>
+  </div>
+</div>
+
+<!-- FREE USES COUNTER -->
+<div class="free-uses-counter" id="freeCounter">
+  <span>🔍 Free checks:</span>
+  <span class="uses-left" id="usesLeftNum">5</span>
+  <span>remaining</span>
+</div>
+
+<script>
+/* ============================================================
+   FAQ LOGIC
+   ============================================================ */
+function openFaq() {
+  document.getElementById('faqModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeFaq() {
+  document.getElementById('faqModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleFaqOverlay(e) {
+  if (e.target === document.getElementById('faqModal')) closeFaq();
+}
+function toggleFaq(item) {
+  const isOpen = item.classList.contains('open-faq');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open-faq'));
+  if (!isOpen) item.classList.add('open-faq');
+}
+
+/* ============================================================
+   SIGN-UP MODAL LOGIC
+   ============================================================ */
+let currentPlan = 'demo';
+let currentMS = 1;
+
+function openModal() {
+  goMS(1, true);
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeFaq(); closeModal(); }
+});
+
+function goMS(n, reset) {
+  document.querySelectorAll('.mscreen').forEach(s => s.classList.remove('active'));
+  document.getElementById('ms' + n).classList.add('active');
+  currentMS = n;
+
+  ['mdot1','mdot2','mdot3'].forEach((id, i) => {
+    const d = document.getElementById(id);
+    d.className = 'm-dot';
+    if (i + 1 < n) d.classList.add('done');
+    else if (i + 1 === n) d.classList.add('active');
+  });
+
+  if (n === 2) {
+    const sub = document.getElementById('ms2-sub');
+    if (currentPlan === 'monthly') {
+      sub.innerHTML = 'Setting up your <b style="color:var(--gold)">Monthly Pro</b> — $25/mo, cancel anytime.';
+      document.getElementById('card-fields').style.display = 'block';
+    } else {
+      sub.innerHTML = 'Setting up your <b style="color:var(--gold)">Demo Plan</b> — free for 5 days, no card needed.';
+      document.getElementById('card-fields').style.display = 'none';
+    }
+  }
+}
+
+function selectPlan(plan) {
+  currentPlan = plan;
+  document.getElementById('pc-demo').classList.toggle('selected', plan === 'demo');
+  document.getElementById('pc-monthly').classList.toggle('selected', plan === 'monthly');
+}
+
+function generateKey(plan) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let key = plan === 'monthly' ? 'vs_live_prod_' : 'vs_live_demo_';
+  for (let i = 0; i < 24; i++) key += chars[Math.floor(Math.random() * chars.length)];
+  return key;
+}
+
+function submitSignup() {
+  const name = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const pass = document.getElementById('inp-pass').value.trim();
+
+  if (!name) { shakeField('inp-name'); return; }
+  if (!email || !email.includes('@')) { shakeField('inp-email'); return; }
+  if (pass.length < 8) { shakeField('inp-pass'); return; }
+
+  if (currentPlan === 'monthly' && activePayMethod !== 'paypal') {
+    const holder = document.getElementById('inp-cholder').value.trim();
+    const cardNum = document.getElementById('inp-card').value.replace(/\s/g,'');
+    const expiry = document.getElementById('inp-expiry').value.trim();
+    const cvv = document.getElementById('inp-cvv').value.trim();
+    if (!holder) { shakeField('inp-cholder'); return; }
+    if (cardNum.length < 15) { shakeField('inp-card'); return; }
+    if (expiry.length < 4) { shakeField('inp-expiry'); return; }
+    if (cvv.length < 3) { shakeField('inp-cvv'); return; }
+  }
+
+  const key = generateKey(currentPlan);
+  document.getElementById('apiKeyText').textContent = key;
+
+  if (currentPlan === 'monthly') {
+    document.getElementById('ms3-sub').innerHTML = 'Your <b style="color:var(--gold)">Monthly Pro</b> is active at <b style="color:var(--gold)">$25/month</b>. Cancel anytime from your dashboard.';
+    document.getElementById('ms3-plan-pill').innerHTML = '⚡ Monthly Pro · $25/mo · Cancel Anytime';
+  } else {
+    document.getElementById('ms3-sub').innerHTML = 'Your Demo API key is ready. You have <b style="color:var(--gold)">5 days</b> free to explore VerifyShield.';
+    document.getElementById('ms3-plan-pill').innerHTML = '🎁 Demo Plan · Free 5-Day Trial';
+  }
+
+  goMS(3);
+}
+
+function shakeField(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = '#FF2D55';
+  el.style.boxShadow = '0 0 0 3px rgba(255,45,85,0.15)';
+  el.animate([
+    {transform:'translateX(-6px)'},{transform:'translateX(6px)'},
+    {transform:'translateX(-4px)'},{transform:'translateX(4px)'},
+    {transform:'translateX(0)'}
+  ], {duration:300, easing:'ease'});
+  setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 1500);
+  el.focus();
+}
+
+function copyKey() {
+  const txt = document.getElementById('apiKeyText').textContent.trim();
+  navigator.clipboard.writeText(txt).catch(() => {});
+  const btn = document.querySelector('.copy-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  btn.style.background = 'rgba(5,229,154,0.15)';
+  btn.style.borderColor = 'rgba(5,229,154,0.3)';
+  btn.style.color = '#05E59A';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  }, 2000);
+}
+
+/* ============================================================
+   PAYMENT METHOD LOGIC
+   ============================================================ */
+let activePayMethod = 'card';
+
+function switchPayMethod(method) {
+  activePayMethod = method;
+  ['card','mc','amex','paypal'].forEach(m => {
+    const el = document.getElementById('pm-' + m);
+    if (el) el.classList.toggle('pm-active', m === method);
+  });
+  const isPaypal = method === 'paypal';
+  document.getElementById('pm-card-form').style.display = isPaypal ? 'none' : 'block';
+  document.getElementById('pm-paypal-form').style.display = isPaypal ? 'block' : 'none';
+}
+
+// Card brand detection
+const cardBrands = {
+  visa:     { pattern: /^4/ },
+  mc:       { pattern: /^5[1-5]|^2[2-7]/ },
+  amex:     { pattern: /^3[47]/ },
+  discover: { pattern: /^6(?:011|5)/ },
+};
+
+function getCardBrand(num) {
+  const n = num.replace(/\s/g,'');
+  for (const [brand, info] of Object.entries(cardBrands)) {
+    if (info.pattern.test(n)) return brand;
+  }
+  return null;
+}
+
+function renderBrandSVG(brand) {
+  const el = document.getElementById('cardBrandIcon');
+  if (!el) return;
+  const svgs = {
+    visa:     `<svg viewBox="0 0 40 26" fill="none"><rect width="40" height="26" rx="4" fill="#1A1F71"/><text x="4" y="18" font-family="Arial" font-size="12" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">VISA</text></svg>`,
+    mc:       `<svg viewBox="0 0 40 26" fill="none"><rect width="40" height="26" rx="4" fill="#252525"/><circle cx="16" cy="13" r="8" fill="#EB001B"/><circle cx="24" cy="13" r="8" fill="#F79E1B"/><path d="M20 6.5A8 8 0 0 1 24 13a8 8 0 0 1-4 6.5A8 8 0 0 1 16 13a8 8 0 0 1 4-6.5z" fill="#FF5F00"/></svg>`,
+    amex:     `<svg viewBox="0 0 40 26" fill="none"><rect width="40" height="26" rx="4" fill="#2557D6"/><text x="4" y="18" font-family="Arial" font-size="9" font-weight="800" fill="#FFFFFF" letter-spacing="0.3">AMEX</text></svg>`,
+    discover: `<svg viewBox="0 0 40 26" fill="none"><rect width="40" height="26" rx="4" fill="#FFFFFF"/><text x="3" y="16" font-family="Arial" font-size="7" font-weight="900" fill="#FF6600" letter-spacing="0.3">DISCOVER</text><circle cx="30" cy="13" r="7" fill="#FF6600"/></svg>`,
+  };
+  el.innerHTML = brand && svgs[brand]
+    ? svgs[brand]
+    : `<svg viewBox="0 0 40 26" fill="none"><rect width="40" height="26" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/></svg>`;
+
+  // Auto-switch payment method tab based on detected brand
+  if (brand === 'mc') switchPayMethod('mc');
+  else if (brand === 'amex') switchPayMethod('amex');
+  else if (brand === 'visa' || brand === 'discover') switchPayMethod('card');
+}
+
+// Card number formatter + brand detection
+const cardInput = document.getElementById('inp-card');
+if (cardInput) {
+  cardInput.addEventListener('input', function(e) {
+    const brand = getCardBrand(e.target.value);
+    const isAmex = brand === 'amex';
+    const maxDigits = isAmex ? 15 : 16;
+    let v = e.target.value.replace(/\D/g,'').substring(0, maxDigits);
+    if (isAmex) {
+      v = v.replace(/^(\d{0,4})(\d{0,6})(\d{0,5})$/, (_, a, b, c) => [a, b, c].filter(Boolean).join(' '));
+    } else {
+      v = v.replace(/(.{4})/g,'$1 ').trim();
+    }
+    e.target.value = v;
+    renderBrandSVG(getCardBrand(e.target.value));
+  });
+}
+
+// Expiry formatter
+const expiryInput = document.getElementById('inp-expiry');
+if (expiryInput) {
+  expiryInput.addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g,'').substring(0,4);
+    if (v.length >= 3) v = v.substring(0,2) + ' / ' + v.substring(2);
+    e.target.value = v;
+  });
+}
+
+// CVV — numbers only
+const cvvInput = document.getElementById('inp-cvv');
+if (cvvInput) {
+  cvvInput.addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g,'').substring(0,4);
+  });
+}
+
+/* ============================================================
+   TAB / CHECKER LOGIC
+   ============================================================ */
+/* ============================================================
+   FREE TRIAL LIMIT SYSTEM — 5 free checks then paywall
+   ============================================================ */
+const FREE_LIMIT = 5;
+let freeUsesLeft = parseInt(localStorage.getItem('vs_free_uses') ?? FREE_LIMIT);
+
+function updateCounter() {
+  const el = document.getElementById('usesLeftNum');
+  const counter = document.getElementById('freeCounter');
+  if (!el) return;
+  el.textContent = freeUsesLeft;
+  // Turn amber at 2, red at 1
+  if (freeUsesLeft <= 1) el.style.color = '#FF2D55';
+  else if (freeUsesLeft <= 2) el.style.color = '#FFB800';
+  else el.style.color = 'var(--gold)';
+  // Hide counter if no uses left
+  counter.style.display = freeUsesLeft <= 0 ? 'none' : 'flex';
+}
+
+function useFreeTrial() {
+  if (freeUsesLeft <= 0) {
+    showPaywall();
+    return false;
+  }
+  freeUsesLeft--;
+  localStorage.setItem('vs_free_uses', freeUsesLeft);
+  updateCounter();
+  if (freeUsesLeft === 0) {
+    // Show paywall after result is displayed
+    setTimeout(showPaywall, 1800);
+  }
+  return true;
+}
+
+function showPaywall() {
+  document.getElementById('paywallModal').classList.add('open');
+}
+
+function dismissPaywall() {
+  document.getElementById('paywallModal').classList.remove('open');
+}
+
+// Init counter on load
+updateCounter();
+
+
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = ['email','phone','ip'];
+  document.querySelectorAll('.tab-btn')[tabs.indexOf(tab)].classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function setChip(el, status) {
+  const m = {
+    Safe:    { cls:'pill-safe', icon:'✅', txt:'Safe' },
+    Flagged: { cls:'pill-flag', icon:'🚨', txt:'Flagged' },
+    Review:  { cls:'pill-rev',  icon:'⚠️', txt:'Needs Review' }
+  };
+  const s = m[status] || m['Review'];
+  el.className = 'status-pill ' + s.cls;
+  el.innerHTML = s.icon + ' ' + s.txt;
+  return s.cls;
+}
+
+function setBar(el, score, cls) {
+  const colors = { 'pill-safe':'#05E59A', 'pill-flag':'#FF2D55', 'pill-rev':'#FFB800' };
+  const c = colors[cls] || '#FFB800';
+  el.style.background = c;
+  el.style.boxShadow = '0 0 10px ' + c + '44';
+  setTimeout(() => { el.style.width = score + '%'; }, 80);
+}
+
+function flagVal(el, v) {
+  el.textContent = v ? '⚠ Yes' : '✓ No';
+  el.style.color = v ? '#FF2D55' : '#05E59A';
+}
+
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : '—'; }
+
+async function checkEmail() {
+  const e = document.getElementById('emailInput').value.trim();
+  if (!e) { alert('Please enter an email address.'); return; }
+  if (!useFreeTrial()) return;
+  const btn = document.getElementById('emailBtn');
+  btn.innerHTML = '⏳ &nbsp;ANALYZING...'; btn.disabled = true;
+  try {
+    const r = await fetch(`${API_BASE}/check?email=${encodeURIComponent(e)}&api_key=demo`);
+    const d = await r.json();
+    document.getElementById('result-email').style.display = 'block';
+    const cls = setChip(document.getElementById('email-badge'), d.status);
+    document.getElementById('email-scoreNum').textContent = d.score;
+    setBar(document.getElementById('email-bar'), d.score, cls);
+    const rk = document.getElementById('email-risk');
+    rk.textContent = cap(d.risk);
+    rk.style.color = cls === 'pill-safe' ? '#05E59A' : cls === 'pill-flag' ? '#FF2D55' : '#FFB800';
+    flagVal(document.getElementById('email-disposable'), d.is_disposable);
+  } catch(err) {
+    alert('Cannot connect to backend — make sure Python server is running on port 8000.');
+  }
+  btn.innerHTML = '⚡ &nbsp;RUN EMAIL ANALYSIS'; btn.disabled = false;
+}
+
+async function checkPhone() {
+  const p = document.getElementById('phoneInput').value.trim();
+  if (!p) { alert('Please enter a phone number.'); return; }
+  if (!useFreeTrial()) return;
+  const btn = document.getElementById('phoneBtn');
+  btn.innerHTML = '⏳ &nbsp;ANALYZING...'; btn.disabled = true;
+  try {
+    const r = await fetch(`${API_BASE}/check-phone?phone=${encodeURIComponent(p)}&api_key=demo`);
+    const d = await r.json();
+    document.getElementById('result-phone').style.display = 'block';
+    setChip(document.getElementById('phone-badge'), d.status);
+    const v = document.getElementById('phone-valid');
+    v.textContent = d.valid ? '✅ Valid Number' : '❌ Invalid Number';
+    v.style.color = d.valid ? '#05E59A' : '#FF2D55';
+    const rk = document.getElementById('phone-risk');
+    rk.textContent = cap(d.risk);
+    rk.style.color = d.risk === 'low' ? '#05E59A' : d.risk === 'high' ? '#FF2D55' : '#FFB800';
+    document.getElementById('phone-lineType').textContent = cap(d.line_type);
+    document.getElementById('phone-country').textContent = d.country || '—';
+    document.getElementById('phone-carrier').textContent = d.carrier || '—';
+  } catch(err) {
+    alert('Cannot connect to backend — make sure Python server is running on port 8000.');
+  }
+  btn.innerHTML = '⚡ &nbsp;RUN PHONE ANALYSIS'; btn.disabled = false;
+}
+
+async function checkIP() {
+  const ip = document.getElementById('ipInput').value.trim();
+  if (!ip) { alert('Please enter an IP address.'); return; }
+  if (!useFreeTrial()) return;
+  const btn = document.getElementById('ipBtn');
+  btn.innerHTML = '⏳ &nbsp;ANALYZING...'; btn.disabled = true;
+  try {
+    const r = await fetch(`${API_BASE}/check-ip?ip=${encodeURIComponent(ip)}&api_key=demo`);
+    const d = await r.json();
+    document.getElementById('result-ip').style.display = 'block';
+    const cls = setChip(document.getElementById('ip-badge'), d.status);
+    document.getElementById('ip-threatScore').textContent = d.threat_score;
+    setBar(document.getElementById('ip-bar'), d.threat_score, cls);
+    document.getElementById('ip-country').textContent = d.country || '—';
+    document.getElementById('ip-city').textContent = d.city || '—';
+    flagVal(document.getElementById('ip-vpn'), d.is_vpn);
+    flagVal(document.getElementById('ip-tor'), d.is_tor);
+    flagVal(document.getElementById('ip-proxy'), d.is_proxy);
+    flagVal(document.getElementById('ip-bot'), d.is_bot);
+  } catch(err) {
+    alert('Cannot connect to backend — make sure Python server is running on port 8000.');
+  }
+  btn.innerHTML = '⚡ &nbsp;RUN IP ANALYSIS'; btn.disabled = false;
+}
+</script>
+</body>
+</html>
